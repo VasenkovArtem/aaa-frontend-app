@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Avito AAA</title>
+    <title>Avito AAA - Распознавание текста</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet" >
   </head>
   <body>
@@ -20,66 +20,89 @@
         </a>
       </div>
     </nav>
-
+    
+    {% if not error and not words and not image %}
     <div class="container text-center col-8">
       <h1 class="display-3">
-        Занятие ААА по фронтенду
+        Распознавание текста на изображении
       </h1>
     </div>
 
-    <div class="container col-6 mt-4 alert alert-danger">
-      Some Nasty Error :(
-    </div>
+    {% else %}
+      
+      {% if error %}
+        <div class="container text-center col-8 mt-4 alert alert-danger">
+          Ошибка! {{ error }}
+        </div>
 
-    <div class="container text-center col-8 mt-4">
-      <figure class="figure">
-        <img class="img-fluid rounded mx-auto" src="{{ image }}">
-        <figcaption class="figure-caption text-end">
-          рамками выделены полигоны с текстом
-        </figcaption>
-      </figure>
-    </div>
+      {% else %}
 
-    <div class="container col-6">
-      <table class="table mx-auto">
-        <thead>
-          <tr>
-            <th scope="col">изображение</th>
-            <th scope="col">слово</th>
-            <th scope="col">точность</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <img src="" alt="IMG">
-            </td>
-            <td>WORD</td>
-            <td class="">
-              99.9%
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <img src="" alt="IMG">
-            </td>
-            <td>WORD</td>
-            <td class="">
-              99.9%
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+        {% if image %}
+          <div class="container text-center col-8 mt-4">
+            <figure class="figure">
+              <img class="img-fluid rounded mx-auto" src="{{ image }}">
+              <figcaption class="figure-caption text-center">
+                рамками выделены полигоны с текстом
+              </figcaption>
+            </figure>
+          </div>
+        {% else %}
+          <div class="container text-center col-8 mt-4 alert alert-warning">
+            Изображение с полигонами не может быть отображено!
+          </div>
+        {% endif %}
 
-    <form class="container col-6 p-4 mt-4 border rounded" method="POST" enctype="multipart/form-data">
+        {% if words %}
+          <div class="container col-8">
+            <table class="table mx-auto">
+              <thead>
+                <tr>
+                  <th scope="col">Изображение</th>
+                  <th scope="col">Распознанное слово</th>
+                  <th scope="col">Уверенность модели</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for res in words %}
+                  <tr class="
+                  {% if res.accuracy > 0.9 %}
+                    table-success
+                  {% elif res.accuracy > 0.75 %}
+                    table-warning
+                  {% else %}
+                    table-danger
+                  {% endif %}
+                  ">
+                    <td>
+                      <img class="img-fluid mx-auto" src="{{ res.image }}" alt="{{ res.word }}">
+                    </td>
+                    <td>{{ res.word }}</td>
+                    <td>{{ (res.accuracy*100)|round(2) }} %</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="container text-center col-8 mt-2 alert alert-info">
+            Текст не найден!
+          </div>
+        {% endif %}
+
+      {% endif %}  
+
+    {% endif %}
+
+    <form class="container col-8 p-4 mt-4 border rounded" method="POST" enctype="multipart/form-data">
       <div class="mb-3">
-        <label class="form-label" for="image">Выберите изображение для распознования текста</label>
-        <input class="form-control" type="file" name="image" id="image" accept="image/jpeg">
-        <label class="form-text" for="image">распознование доступно только на английском языке</label>
+        <label class="form-label" for="image">Выберите изображение для распознавания текста</label>
+        <input class="form-control" type="file" name="image" id="image" accept="image/png, image/jpeg">
+        <label class="form-text" for="image">максимальный размер файла — 512 Кбайт</label>
+        <br>
+        <label class="form-text" for="image">распознавание доступно на русском и английском языках</label>
       </div>
       <div class="mb-3">
-        <input class="btn btn-primary" type="submit" id="submit" value="загрузить">
+        <input class="btn btn-primary" type="submit" id="submit" value="распознать текст">
       </div>
     </form>
 

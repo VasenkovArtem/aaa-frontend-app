@@ -2,7 +2,7 @@ from io import BufferedReader, BytesIO
 from base64 import b64encode
 from typing import List, Tuple
 
-from PIL import Image
+from PIL import Image, ImageFont
 from PIL.ImageDraw import Draw
 
 
@@ -30,8 +30,10 @@ class PolygonDrawer:
         box = self.coords_to_box(coords)
         self._draw.rectangle(box, outline="red")
         text_height = 12  # px, hardcoded
+        path_to_font = r"./lib/static/Roboto-Regular.ttf"
+        font = ImageFont.truetype(path_to_font, text_height, encoding="UTF-8")
         x, y = box[:2]
-        self._draw.text((x, y - text_height), word, fill="red")
+        self._draw.text((x, y - text_height), word, font=font, fill="red")
 
     def crop(self, coords: Coords) -> Image:
         """Get cropped Image part"""
